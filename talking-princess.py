@@ -1,12 +1,10 @@
 import json
 import os
-import threading
+import sys
 import pygame
 import sounddevice as sd
 import soundfile as sf
-import numpy as np
-import sys
-from ChatGPTMinimalAPI import ChatGPTAPIClient,Message
+from ChatGPTMinimalAPI import ChatGPTAPIClient
 from TTSClient import TTSApiClient
 from WhisperClient import WhisperAPIClient
 pygame.init()
@@ -23,11 +21,9 @@ GRAY = (128, 128, 128)
 FONT = pygame.font.Font(None, 36)
 
 # Define the recording state
-RECORDING = False
 SMILING = "smilingmouth.png"
 OPEN = "openmouth.png"
 THINKING = "thinking.png"
-BACKGROUND = pygame.image.load(SMILING)
 # Define the filename to use
 FILENAME = "recording.wav"
 file = None
@@ -35,9 +31,13 @@ file = None
 
 
 class SoundRecorder:
-    def Start(self):
+    def __init__(self):
         self.file = sf.SoundFile(FILENAME, mode='x', samplerate=44100, channels=1)
         self.stream = sd.InputStream(channels=1,samplerate=44100, callback=self.callback)
+    def Start(self):
+        if self.stream.closed:
+            self.file = sf.SoundFile(FILENAME, mode='x', samplerate=44100, channels=1)
+            self.stream = sd.InputStream(channels=1,samplerate=44100, callback=self.callback)
         self.stream.start()
     def Stop(self):
         self.stream.stop()
@@ -47,7 +47,7 @@ class SoundRecorder:
         if status:
             print(status, file=sys.stderr)
         self.file.write(indata.copy())
-    
+
 class SoundPlayer:
     filename = "output.wav"
     def Play(self):
@@ -58,8 +58,8 @@ class Secrets:
     TokenOpenAI =""
     KeyGoogleAPI = ""
     def __init__(self):
-        with open('secrets.json', 'r') as file:
-            secrets = json.load(file)
+        with open('secrets.json', 'r') as secretFile:
+            secrets = json.load(secretFile)
             self.TokenOpenAI = secrets["OpenAI-token"]
             self.KeyGoogleAPI = secrets["GoogleAPIKey"]
 
@@ -82,25 +82,24 @@ def main():
     transcriber = WhisperAPIClient(secrets.TokenOpenAI)
     synthesizer = TTSApiClient(secrets.KeyGoogleAPI)
     chatbot = ChatGPTAPIClient(secrets.TokenOpenAI)
+    RECORDING = False
+    BACKGROUND = pygame.image.load(SMILING)
+
     # Main loop
     while True:
         # Handle events
         for event in pygame.event.get():
-            global BACKGROUND
             if event.type == pygame.QUIT:
                 return
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                # Check if the start button was clicked
-                global RECORDING
                 if button.collidepoint(event.pos):
-                    if RECORDING == False:
+                    if RECORDING is False:
                         RECORDING = True
                         soundRecorder.Start()
                         button_text = FONT.render("Stop Recording", True, BLACK)
 
                         BACKGROUND = pygame.image.load(THINKING)
                         print("Recording started")
-                # Check if the stop button was clicked
                     else:
                         RECORDING = False
                         soundRecorder.Stop()
@@ -126,4 +125,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

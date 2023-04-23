@@ -1,10 +1,10 @@
-import requests
 import json
 import base64
+import requests
 
 class TTSApiClient:
     url = 'https://texttospeech.googleapis.com/v1/text:synthesize?key=AIzaSyDDFVHqNzRwcYhYp7hvDT8kb_eRG6Csv2U'
-    headers = dict()
+    headers = {}
     params = {
         'voice': {
             'languageCode': 'nb-NO',
@@ -33,6 +33,3 @@ class TTSApiClient:
         # Save the MP3 file to disk
         with open('output.wav', 'wb') as f:
             f.write(audio_content)
-
-# Set the URL for the Google Cloud Text-to-Speech API
-

@@ -3,8 +3,7 @@ import base64
 import requests
 
 class TTSApiClient:
-    url = 'https://texttospeech.googleapis.com/v1/text:synthesize?key=AIzaSyDDFVHqNzRwcYhYp7hvDT8kb_eRG6Csv2U'
-    headers = {}
+    url = 'https://texttospeech.googleapis.com/v1/text:synthesize'
     params = {
         'voice': {
             'languageCode': 'nb-NO',
@@ -16,13 +15,11 @@ class TTSApiClient:
         },
     }
     def __init__(self,API_KEY):
-        self.headers = {
-        "key": API_KEY
-        }
+        self.url = self.url+"?key="+API_KEY
     def Synthesize(self,text):
         self.params['input'] = {'text': text}
         # Send a POST request to the Google Cloud Text-to-Speech API with the parameters
-        response = requests.post(self.url,headers=self.headers, json=self.params)
+        response = requests.post(self.url, json=self.params)
         data = json.loads(response.content)
         # Extract the audio content from the response
         try:

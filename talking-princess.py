@@ -32,12 +32,13 @@ file = None
 
 class SoundRecorder:
     def __init__(self):
+        if os.path.exists("recording.wav"):
+            os.remove("recording.wav")
         self.file = sf.SoundFile(FILENAME, mode='x', samplerate=44100, channels=1)
         self.stream = sd.InputStream(channels=1,samplerate=44100, callback=self.callback)
     def Start(self):
         if self.stream.closed:
-            self.file = sf.SoundFile(FILENAME, mode='x', samplerate=44100, channels=1)
-            self.stream = sd.InputStream(channels=1,samplerate=44100, callback=self.callback)
+            self.__init__()
         self.stream.start()
     def Stop(self):
         self.stream.stop()
@@ -95,6 +96,8 @@ def main():
                 if button.collidepoint(event.pos):
                     if RECORDING is False:
                         RECORDING = True
+
+
                         soundRecorder.Start()
                         button_text = FONT.render("Stop Recording", True, BLACK)
 
@@ -111,7 +114,6 @@ def main():
                         print(chatbotResponse)
                         synthesizer.Synthesize(chatbotResponse)
                         soundPlayer.Play()
-                        os.remove("recording.wav")
                         button_text = FONT.render("Start Recording", True, BLACK)
 
 

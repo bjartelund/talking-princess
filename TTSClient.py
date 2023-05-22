@@ -7,7 +7,7 @@ class TTSApiClient:
     params = {
         'voice': {
             'languageCode': 'nb-NO',
-            'name': 'nb-NO-Standard-A',
+            'name': 'nb-NO-Wavenet-A',
         },
         'audioConfig': {
             'audioEncoding': 'LINEAR16',
